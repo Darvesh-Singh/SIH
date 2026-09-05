@@ -1,0 +1,231 @@
+/* ==========================================================================
+   OceanEmbed AI - SIH 26066 Styling System
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-deep-abyssal: #020617;
+  --bg-midnight-ocean: #091328;
+  --bg-card: rgba(15, 23, 42, 0.85);
+  --bg-card-hover: rgba(30, 41, 59, 0.9);
+  --border-ocean: rgba(56, 189, 248, 0.15);
+  --border-ocean-glow: rgba(59, 130, 246, 0.4);
+  
+  --accent-cyan: #38bdf8;
+  --accent-blue: #3b82f6;
+  --accent-teal: #14b8a6;
+  --accent-emerald: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-danger: #ef4444;
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-deep-abyssal);
+  color: var(--text-main);
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Dynamic Ambient Underwater Canvas Background
+   ========================================================================== */
+#ocean-bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0%, #032042 0%, #020b18 45%, #010610 100%);
+}
+
+.gradient-ocean-overlay {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.15), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(59, 130, 246, 0.08), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 20% 90%, rgba(20, 184, 166, 0.06), transparent 50%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Glassmorphism Components
+   ========================================================================== */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-ocean);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: var(--border-ocean-glow);
+  box-shadow: 0 15px 35px -10px rgba(14, 165, 233, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-input {
+  background: rgba(2, 6, 23, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+/* ==========================================================================
+   Glow Badges & Buttons
+   ========================================================================== */
+.btn-ocean-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-ocean-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0369a1 100%);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-ocean-secondary {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.btn-ocean-secondary:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: var(--text-main);
+  border-color: var(--accent-cyan);
+}
+
+.badge-anomaly {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.3); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
+  50% { border-color: rgba(239, 68, 68, 0.7); box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.3); }
+}
+
+.badge-verified {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+/* ==========================================================================
+   Custom 3D Slice Gradient Container
+   ========================================================================== */
+.slice-3d-gradient {
+  background: linear-gradient(180deg, 
+    #ef4444 0%,   /* Surface Warm Layer */
+    #f59e0b 20%,  /* Mixed Layer */
+    #10b981 40%,  /* Thermocline Upper */
+    #3b82f6 70%,  /* Deep Ocean */
+    #0f172a 100%  /* Abyssal Zone */
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.slice-3d-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 19px,
+    rgba(255, 255, 255, 0.08) 20px
+  );
+  pointer-events: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
+
+/* Map Leaflet styling overrides for ocean dark mode */
+.leaflet-container {
+  background-color: #030a16 !important;
+  font-family: var(--font-sans) !important;
+}
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 0.75rem !important;
+}
+
+/* Pulsing radar dot */
+.radar-ping {
+  position: relative;
+}
+.radar-ping::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: inherit;
+  border-radius: 50%;
+  animation: radar-expand 1.8s infinite ease-out;
+  z-index: -1;
+}
+
+@keyframes radar-expand {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* Formula & Math Card Styling */
+.math-code {
+  font-family: var(--font-mono);
+  background: rgba(2, 6, 23, 0.7);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OceanEmbed AI - SIH 26066 Subsurface Ocean Reconstruction</title>
+  
+  <!-- CDNs & External Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Styling System -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- Perfect Dynamic Ambient Underwater Canvas Background -->
+  <canvas id="ocean-bg-canvas"></canvas>
+  <div class="gradient-ocean-overlay"></div>
+
+  <!-- Header & Main Navigation Bar -->
+  <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchNode(2)">
+        <div class="bg-gradient-to-br from-blue-600 to-cyan-500 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/20">
+          <i class="fa-solid fa-water text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold text-white tracking-wide">OceanEmbed <span class="text-cyan-400">AI</span></h1>
+            <span class="text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-full font-mono">SIH26066</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Subsurface Ocean Temperature Reconstruction Framework</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (6 Node Workflow) -->
+      <nav class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 text-xs font-medium">
+        <button onclick="switchNode(1)" id="btn-node-1" class="node-btn px-3 py-1.5 rounded-lg bg-blue-600 text-white transition">1. Access Gateway</button>
+        <button onclick="switchNode(2)" id="btn-node-2" class="node-btn px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-400 transition">2. Ocean GIS</button>
+        <button onclick="switchNode(3)" id="btn-node-3" class="node-btn px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-400 transition">3. Satellite Ingestion</button>
+        <button onclick="switchNode(4)" id="btn-node-4" class="node-btn px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-400 transition">4. 3D AI Engine</button>
+        <button onclick="switchNode(5)" id="btn-node-5" class="node-btn px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-400 transition">5. Insights & SVP</button>
+        <button onclick="switchNode(6)" id="btn-node-6" class="node-btn px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-400 transition">6. Archives</button>
+      </nav>
+
+      <!-- Active User Profile Pill -->
+      <div class="hidden md:flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-300 font-mono display-user-role">Oceanographer (MoES)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="max-w-7xl mx-auto px-4 py-8 relative">
+
+    <!-- NODE 1: Access Gateway / Role Selection -->
+    <section id="node-1" class="node-screen flex justify-center items-center py-8">
+      <div class="w-full max-w-md glass-panel p-8 shadow-2xl relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl"></div>
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-600/20 text-cyan-400 border border-cyan-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg shadow-cyan-500/10">
+            <i class="fa-solid fa-satellite-dish"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-white tracking-tight">OceanEmbed AI</h2>
+          <p class="text-slate-400 text-xs mt-1">Deep Ocean Subsurface Neural Operator Engine</p>
+        </div>
+
+        <form onsubmit="event.preventDefault(); switchNode(2);" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">User Command Role</label>
+            <select id="userRoleSelect" onchange="changeUserRole(this.value)" class="w-full glass-input rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none">
+              <option value="Oceanographer / Researcher (MoES)">Oceanographer / Researcher (MoES)</option>
+              <option value="Defense & Naval Submarine Command">Defense & Naval Submarine Command</option>
+              <option value="Climate & Ecosystem Analyst">Climate & Ecosystem Analyst</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Institutional Email</label>
+            <input type="email" value="researcher@moes.gov.in" class="w-full glass-input rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Security Token</label>
+            <input type="password" value="••••••••••••••••" class="w-full glass-input rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none">
+          </div>
+          <button type="submit" class="w-full btn-ocean-primary py-3 rounded-lg text-sm transition font-semibold flex items-center justify-center gap-2">
+            Authenticate & Launch Workspace <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+          <p class="text-[11px] text-slate-500">Authorized Access for MoES, INCOIS & Naval Hydrographic Command</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- NODE 2: Live Satellite Telemetry & GIS Dashboard -->
+    <section id="node-2" class="node-screen hidden space-y-6">
+      <!-- Top Metrics Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="glass-panel p-4">
+          <p class="text-xs text-slate-400 font-medium">Input Satellite Streams</p>
+          <div class="flex items-baseline justify-between mt-2">
+            <span class="text-2xl font-bold text-white">04</span>
+            <span class="text-xs text-emerald-400 flex items-center gap-1 font-mono"><i class="fa-solid fa-signal text-[10px]"></i> Active</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1 font-mono">SST, SSS, SSH, Wind Vector</p>
+        </div>
+
+        <div class="glass-panel p-4">
+          <p class="text-xs text-slate-400 font-medium">Vertical Depth Reconstruction</p>
+          <div class="flex items-baseline justify-between mt-2">
+            <span class="text-2xl font-bold text-cyan-400 font-mono">0 - 1000m</span>
+            <span class="text-xs text-slate-400">50 Layers</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1 font-mono">Continuously Gridded Volume</p>
+        </div>
+
+        <div class="glass-panel p-4">
+          <p class="text-xs text-slate-400 font-medium">Model Precision (MAE)</p>
+          <div class="flex items-baseline justify-between mt-2">
+            <span class="text-2xl font-bold text-emerald-400 font-mono">±0.28 °C</span>
+            <span class="text-xs text-emerald-400"><i class="fa-solid fa-arrow-down"></i> High Precision</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1 font-mono">Validated vs ARGO Network</p>
+        </div>
+
+        <div class="glass-panel p-4">
+          <p class="text-xs text-slate-400 font-medium">Active ARGO Floats</p>
+          <div class="flex items-baseline justify-between mt-2">
+            <span class="text-2xl font-bold text-white font-mono">350+</span>
+            <span class="text-xs text-cyan-400">In-situ Ground Truth</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1 font-mono">Indian Ocean Basin</p>
+        </div>
+      </div>
+
+      <!-- Main GIS Ocean Map & Active Alerts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Interactive GIS Map Panel -->
+        <div class="lg:col-span-2 glass-panel p-5 flex flex-col justify-between space-y-4">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <div>
+              <h3 class="font-bold text-white text-base">Interactive Ocean GIS & ARGO Float Network</h3>
+              <p class="text-xs text-slate-400">Select any point on the map or click an ARGO Float to target subsurface reconstruction</p>
+            </div>
+            <span class="badge-anomaly text-xs px-3 py-1 rounded-full flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> Arabian Sea Thermal Anomaly
+            </span>
+          </div>
+
+          <!-- Leaflet GIS Container -->
+          <div id="gisMap" class="h-80 rounded-xl border border-slate-800 shadow-inner z-10"></div>
+
+          <!-- Coords Toolbar -->
+          <div class="flex flex-wrap justify-between items-center text-xs bg-slate-950/80 p-3 rounded-lg border border-slate-800">
+            <div>
+              <span class="text-slate-400">Target Coordinates: </span>
+              <span class="font-mono text-cyan-400 font-bold display-coords">15.420° N, 73.150° E</span>
+            </div>
+            <div>
+              <span class="text-slate-400">Sector: </span>
+              <span class="font-mono text-white font-medium display-region">Arabian Sea Sector A</span>
+            </div>
+            <button onclick="switchNode(3)" class="btn-ocean-primary px-3 py-1.5 rounded-lg text-xs font-semibold">
+              Load Satellite Data <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Anomaly & Telemetry Alerts -->
+        <div class="glass-panel p-5 flex flex-col justify-between space-y-4">
+          <div>
+            <h3 class="font-bold text-white text-base mb-3">Live Anomaly Telemetry</h3>
+            <div class="space-y-3">
+              <div onclick="selectCoordinates(15.420, 73.150, 'Arabian Sea Thermal Spike')" class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-red-500/40 cursor-pointer transition flex justify-between items-center">
+                <div>
+                  <p class="text-xs font-semibold text-white">Arabian Sea Sector A</p>
+                  <p class="text-[11px] text-red-400 mt-0.5"><i class="fa-solid fa-temperature-arrow-up"></i> Thermal Accumulation (+3.1°C)</p>
+                  <p class="text-[10px] text-slate-500 font-mono mt-1">15.420° N, 73.150° E</p>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">10:30 AM</span>
+              </div>
+
+              <div onclick="selectCoordinates(18.620, 88.610, 'Bay of Bengal Cyclone Shift')" class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-yellow-500/40 cursor-pointer transition flex justify-between items-center">
+                <div>
+                  <p class="text-xs font-semibold text-white">Bay of Bengal Sector 2</p>
+                  <p class="text-[11px] text-yellow-400 mt-0.5"><i class="fa-solid fa-water"></i> Thermocline Depth Depression</p>
+                  <p class="text-[10px] text-slate-500 font-mono mt-1">18.620° N, 88.610° E</p>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">08:15 AM</span>
+              </div>
+
+              <div onclick="selectCoordinates(8.800, 65.500, 'Equatorial Indian Ocean')" class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-cyan-500/40 cursor-pointer transition flex justify-between items-center">
+                <div>
+                  <p class="text-xs font-semibold text-white">Equatorial Indian Ocean</p>
+                  <p class="text-[11px] text-emerald-400 mt-0.5"><i class="fa-solid fa-check-circle"></i> Stable Climatology</p>
+                  <p class="text-[10px] text-slate-500 font-mono mt-1">08.800° S, 65.500° E</p>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">06:45 AM</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="switchNode(3)" class="w-full btn-ocean-primary py-2.5 rounded-lg text-xs font-semibold">
+            Proceed to Data Ingestion & FNO Engine <i class="fa-solid fa-chevron-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- NODE 3: Data Ingestion & Heatmap Preview -->
+    <section id="node-3" class="node-screen hidden max-w-3xl mx-auto space-y-6">
+      <div class="glass-panel p-8 space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-white">Satellite Observation Ingestion</h2>
+          <p class="text-xs text-slate-400 mt-1">Upload ocean satellite surface gridded NetCDF (`.nc`), HDF5 (`.h5`), or select pre-loaded SIH datasets</p>
+        </div>
+
+        <!-- Pre-Loaded Sample Datasets Selector -->
+        <div class="space-y-2">
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Select Pre-Loaded Ocean Satellite Dataset</label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button onclick="loadPreloadedDataset('arabian_sea')" class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 text-left transition space-y-1">
+              <span class="text-xs font-bold text-white block">Arabian Sea Monsoon</span>
+              <span class="text-[10px] text-cyan-400 block font-mono">SST, SSS, SSH, Winds</span>
+              <span class="text-[9px] text-slate-500 block">142 MB • NetCDF4</span>
+            </button>
+            <button onclick="loadPreloadedDataset('bay_of_bengal')" class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 text-left transition space-y-1">
+              <span class="text-xs font-bold text-white block">Bay of Bengal Cyclone</span>
+              <span class="text-[10px] text-cyan-400 block font-mono">SST, SLA, Currents</span>
+              <span class="text-[9px] text-slate-500 block">185 MB • NetCDF4</span>
+            </button>
+            <button onclick="loadPreloadedDataset('equatorial_io')" class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 text-left transition space-y-1">
+              <span class="text-xs font-bold text-white block">Equatorial IO Dipole</span>
+              <span class="text-[10px] text-cyan-400 block font-mono">SST, Altimetry</span>
+              <span class="text-[9px] text-slate-500 block">110 MB • NetCDF4</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div id="drop-zone" onclick="simulateUpload()" class="border-2 border-dashed border-slate-700 hover:border-cyan-500/50 bg-slate-950/60 p-8 rounded-xl text-center cursor-pointer transition space-y-3">
+          <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto text-xl shadow-lg shadow-cyan-500/10">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-slate-200">Drag & drop ocean satellite NetCDF files here, or <span class="text-cyan-400 underline">Browse Files</span></p>
+            <p class="text-xs text-slate-500 mt-1 font-mono">Supported formats: NetCDF (.nc), HDF5 (.h5), GeoTIFF (.tif) up to 500MB</p>
+          </div>
+        </div>
+
+        <!-- Preview Heatmap Container -->
+        <div id="preview-box" class="space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-medium text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-file-code text-cyan-400"></i>
+              <span id="previewDatasetTitle">arabian_sea_surface_monsoon_2026.nc</span>
+            </span>
+            <span id="previewDatasetInfo" class="text-emerald-400 font-mono">Loaded (142MB)</span>
+          </div>
+          <div class="h-36 bg-gradient-to-r from-blue-950 via-teal-800 to-amber-600 rounded-xl flex items-center justify-center border border-slate-800 relative overflow-hidden shadow-inner">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <span class="text-xs font-mono bg-slate-950/80 px-3.5 py-1.5 rounded-lg text-slate-200 border border-slate-800 shadow-lg">
+              2D SST / SSS Surface Satellite Grid Heatmap Preview
+            </span>
+          </div>
+        </div>
+
+        <button onclick="runAIEngine()" class="w-full btn-ocean-primary py-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2">
+          Run 3D Neural Operator Engine (FNO + ViT) <i class="fa-solid fa-microchip text-xs"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- NODE 4: 3D AI Neural Operator Engine (Three.js WebGL) -->
+    <section id="node-4" class="node-screen hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 3D Three.js Volume Canvas Panel -->
+        <div class="lg:col-span-2 glass-panel p-5 space-y-4">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <div>
+              <h3 class="font-bold text-white text-base">3D Subsurface Temperature Reconstruction</h3>
+              <p class="text-xs text-slate-400">Generated Volume Cross-Section (Surface 0m to 1000m Abyssal Depth)</p>
+            </div>
+            <span id="modelExecutionStatus" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full font-mono">
+              <i class="fa-solid fa-check-circle mr-1"></i> 97.8% Model Confidence
+            </span>
+          </div>
+
+          <!-- Three.js 3D WebGL Canvas Container -->
+          <div id="canvas3DContainer" class="relative h-80 rounded-xl bg-slate-950/90 border border-slate-800 shadow-inner overflow-hidden"></div>
+
+          <!-- Interactive Depth Slice Slider Control -->
+          <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders text-cyan-400"></i> Interactive Depth Slice Probe:
+              </span>
+              <span id="probeDepthText" class="font-mono text-cyan-400 font-bold">150 m</span>
+            </div>
+            <input type="range" min="0" max="1000" step="10" value="150" oninput="set3DDepthSlice(this.value)" class="w-full accent-cyan-400 bg-slate-900 h-2 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+              <span>0m (Surface)</span>
+              <span>150m (Thermocline)</span>
+              <span>500m (Intermediate)</span>
+              <span>1000m (Abyssal Zone)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reconstruction Parameters & Probe Overlay -->
+        <div class="glass-panel p-5 flex flex-col justify-between space-y-4">
+          <div>
+            <h3 class="font-bold text-white text-base mb-3">Target Profile Parameters</h3>
+            <dl class="space-y-3 text-xs font-mono">
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <dt class="text-slate-400">Target Location</dt>
+                <dd class="text-cyan-400 font-bold display-coords">15.420° N, 73.150° E</dd>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <dt class="text-slate-400">AI Model Architecture</dt>
+                <dd class="text-white">ViT-FNO Deep Operator</dd>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <dt class="text-slate-400">Mixed Layer Depth (MLD)</dt>
+                <dd class="text-white">42.5 meters</dd>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <dt class="text-slate-400">Thermocline Gradient</dt>
+                <dd class="text-amber-400">-0.18 °C / meter</dd>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <dt class="text-slate-400">Probe Temp @ Slice</dt>
+                <dd id="probeTempText" class="text-emerald-400 font-bold">18.2 °C</dd>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-2">
+                <dt class="text-slate-400">Speed of Sound (SVP)</dt>
+                <dd id="probeSpeedText" class="text-amber-400 font-bold">1512.0 m/s</dd>
+              </div>
+            </dl>
+          </div>
+
+          <button onclick="switchNode(5)" class="w-full btn-ocean-primary py-2.5 rounded-lg text-xs font-semibold">
+            Analyze Vertical Profile & ARGO Validation <i class="fa-solid fa-chart-line ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- NODE 5: Scientific Oceanographic Profile Validation & Sound Velocity (SVP) -->
+    <section id="node-5" class="node-screen hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Depth Profile Graph Panel -->
+        <div class="lg:col-span-2 glass-panel p-5 space-y-4">
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <div>
+              <h3 class="font-bold text-white text-base">Subsurface Temperature Depth Profile Validation</h3>
+              <p class="text-xs text-slate-400">Inverted-Y Depth Axis Plot (0m Surface to 1000m Depth vs Temperature °C)</p>
+            </div>
+            <span class="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-lg font-mono">ARGO Float ID: #29014</span>
+          </div>
+
+          <!-- Chart.js Vertical Depth Profile Canvas -->
+          <div class="h-72 w-full bg-slate-950/80 rounded-xl p-3 border border-slate-800">
+            <canvas id="depthChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Defense / MoES Multi-Role Panel -->
+        <div class="glass-panel p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <div class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20">
+              <h4 class="text-xs font-bold text-red-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation"></i> Thermal Anomaly Summary
+              </h4>
+              <p class="text-xs text-slate-300 mt-1">Subsurface thermal accumulation detected between 50m and 200m depth (+3.1°C shift relative to climatology).</p>
+            </div>
+
+            <!-- Fisheries / MoES Recommendations -->
+            <div id="fisheriesAlertCard" class="space-y-2 text-xs">
+              <p class="font-semibold text-slate-300">MoES Ecosystem Advisory:</p>
+              <ul class="space-y-1.5 text-slate-400 list-disc list-inside">
+                <li>Notify regional fisheries & marine ecosystem unit.</li>
+                <li>Dispatch updated thermocline data to INCOIS server.</li>
+              </ul>
+            </div>
+
+            <!-- Defense / Naval Submarine Command Card -->
+            <div id="defenseCommandCard" class="hidden space-y-2 text-xs">
+              <p class="font-semibold text-amber-400 flex items-center gap-1">
+                <i class="fa-solid fa-shield-halved"></i> Naval Submarine Command Metrics:
+              </p>
+              <p class="text-slate-400">Sonic Layer Depth (SLD): <strong class="text-white font-mono">65m</strong></p>
+              <p class="text-slate-400">Sonar Shadow Zone Channel: <strong class="text-cyan-400 font-mono">150m - 850m</strong></p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button onclick="exportDataset('pdf')" class="w-full btn-ocean-primary py-2.5 rounded-lg text-xs font-semibold">
+              Export Hydrographic PDF Report <i class="fa-solid fa-file-pdf ml-1"></i>
+            </button>
+            <button onclick="switchNode(6)" class="w-full btn-ocean-secondary py-2 rounded-lg text-xs font-medium">
+              View Reconstruction Archives <i class="fa-solid fa-archive ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Row: Sound Velocity Profile (SVP) for Naval Defense Command -->
+      <div class="glass-panel p-5 space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="font-bold text-white text-sm">Acoustic Sound Velocity Profile (SVP) Calculation</h3>
+            <p class="text-xs text-slate-400">Medwin Equation: <span class="math-code">C = 1449.2 + 4.6T - 0.055T² + 0.00029T³ + 0.016z</span></p>
+          </div>
+          <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded font-mono">Naval Sonar Tactical View</span>
+        </div>
+
+        <div class="h-60 w-full bg-slate-950/80 rounded-xl p-3 border border-slate-800">
+          <canvas id="svpChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- NODE 6: Reconstruction Archives & NetCDF Export Engine -->
+    <section id="node-6" class="node-screen hidden space-y-6">
+      <div class="glass-panel p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Reconstruction History & NetCDF Archives</h2>
+            <p class="text-xs text-slate-400">Stored 3D subsurface profile reconstructions and NetCDF exports</p>
+          </div>
+          <input type="text" placeholder="Search profiles by Lat/Lon or region..." class="glass-input text-xs px-3.5 py-2 rounded-lg text-slate-200 focus:outline-none w-full sm:w-64">
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950/90 text-slate-400 uppercase font-mono border-b border-slate-800">
+              <tr>
+                <th class="p-3">Region / Sector</th>
+                <th class="p-3">Coordinates</th>
+                <th class="p-3">Reconstruction Date</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/50 font-mono">
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="p-3 font-semibold text-white">Arabian Sea Sector A</td>
+                <td class="p-3 text-cyan-400">15.420° N, 73.150° E</td>
+                <td class="p-3 text-slate-400">12 May 2026</td>
+                <td class="p-3"><span class="badge-anomaly text-[10px] px-2 py-0.5 rounded">Thermal Anomaly</span></td>
+                <td class="p-3 text-right space-x-2">
+                  <button onclick="exportDataset('nc')" class="text-cyan-400 hover:underline">Export NetCDF</button>
+                  <button onclick="exportDataset('csv')" class="text-slate-400 hover:underline">CSV</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="p-3 font-semibold text-white">Bay of Bengal Sector 2</td>
+                <td class="p-3 text-cyan-400">18.620° N, 88.610° E</td>
+                <td class="p-3 text-slate-400">10 May 2026</td>
+                <td class="p-3"><span class="badge-verified text-[10px] px-2 py-0.5 rounded">Verified vs ARGO</span></td>
+                <td class="p-3 text-right space-x-2">
+                  <button onclick="exportDataset('nc')" class="text-cyan-400 hover:underline">Export NetCDF</button>
+                  <button onclick="exportDataset('csv')" class="text-slate-400 hover:underline">CSV</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="p-3 font-semibold text-white">Equatorial Indian Ocean</td>
+                <td class="p-3 text-cyan-400">08.800° S, 65.500° E</td>
+                <td class="p-3 text-slate-400">08 May 2026</td>
+                <td class="p-3"><span class="badge-verified text-[10px] px-2 py-0.5 rounded">Verified vs ARGO</span></td>
+                <td class="p-3 text-right space-x-2">
+                  <button onclick="exportDataset('nc')" class="text-cyan-400 hover:underline">Export NetCDF</button>
+                  <button onclick="exportDataset('csv')" class="text-slate-400 hover:underline">CSV</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Application Scripts -->
+  <script src="js/map.js"></script>
+  <script src="js/ocean3d.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
