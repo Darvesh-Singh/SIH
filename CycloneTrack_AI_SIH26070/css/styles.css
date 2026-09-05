@@ -1,0 +1,186 @@
+/* ==========================================================================
+   CycloneTrack AI - SIH 26070 Styling System
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-dark-storm: #020617;
+  --bg-card: rgba(15, 23, 42, 0.88);
+  --border-storm: rgba(56, 189, 248, 0.15);
+  --border-cyclone-glow: rgba(239, 68, 68, 0.4);
+
+  --accent-cyan: #38bdf8;
+  --accent-amber: #f59e0b;
+  --accent-red: #ef4444;
+  --accent-purple: #a855f7;
+  --accent-emerald: #10b981;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark-storm);
+  color: #f8fafc;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Ambient Hurricane Radar Background
+   ========================================================================== */
+#cyclone-bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 60% 30%, #0d1d38 0%, #030a17 50%, #01040a 100%);
+}
+
+.storm-overlay {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle 600px at 70% 40%, rgba(239, 68, 68, 0.08), transparent 70%),
+    radial-gradient(circle 500px at 20% 80%, rgba(56, 189, 248, 0.06), transparent 60%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Glassmorphism Components
+   ========================================================================== */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-storm);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 15px 35px -10px rgba(56, 189, 248, 0.15);
+}
+
+.glass-input {
+  background: rgba(2, 6, 23, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+/* Buttons & Badges */
+.btn-storm-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-storm-danger:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-storm-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-storm-primary:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Dvorak T-Number Rating Badges */
+.badge-vscs {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  animation: pulse-red 2s infinite;
+}
+
+.badge-sucs {
+  background: rgba(168, 85, 247, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  color: #e9d5ff;
+  animation: pulse-purple 2s infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
+  50% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 12px 3px rgba(239, 68, 68, 0.4); }
+}
+
+@keyframes pulse-purple {
+  0%, 100% { border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.2); }
+  50% { border-color: rgba(168, 85, 247, 0.8); box-shadow: 0 0 12px 3px rgba(168, 85, 247, 0.4); }
+}
+
+/* Leaflet Container Overrides */
+.leaflet-container {
+  background-color: #020814 !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* Radar Rotating Sweep Overlay */
+.radar-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.radar-sweep::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  transform-origin: 0% 0%;
+  background: conic-gradient(from 0deg, rgba(56, 189, 248, 0.25) 0deg, transparent 60deg);
+  animation: sweep 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ef4444;
+}
